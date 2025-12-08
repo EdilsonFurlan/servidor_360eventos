@@ -126,7 +126,7 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # <--- ADICIONE ISSO
+        'usuarios.authentication.BearerTokenAuthentication',  # Custom class for Bearer support
         'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication', # Se usar JWT também
     ],
