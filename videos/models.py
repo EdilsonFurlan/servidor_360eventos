@@ -1,6 +1,21 @@
 from django.db import models
 from django.conf import settings
 
+
+def frame_upload_path(instance, filename):
+    """
+    Caminho: events/{user_id}/frames/{filename}
+    """
+    user_id = str(instance.user.id) if instance.user else 'default_user'
+    return f'events/{user_id}/frames/{filename}'
+
+def music_upload_path(instance, filename):
+    """
+    Caminho: events/{user_id}/music/{filename}
+    """
+    user_id = str(instance.user.id) if instance.user else 'default_user'
+    return f'events/{user_id}/music/{filename}'
+
 class Event(models.Model):
     """
     Espelha a classe Event.kt do Android.
@@ -34,21 +49,9 @@ class Event(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.name
+        return f"{self.name} (User: {self.user.email if self.user else 'No User'})"
 
-def frame_upload_path(instance, filename):
-    """
-    Caminho: events/{user_id}/frames/{filename}
-    """
-    user_id = str(instance.user.id) if instance.user else 'default_user'
-    return f'events/{user_id}/frames/{filename}'
 
-def music_upload_path(instance, filename):
-    """
-    Caminho: events/{user_id}/music/{filename}
-    """
-    user_id = str(instance.user.id) if instance.user else 'default_user'
-    return f'events/{user_id}/music/{filename}'
 
 
 def video_upload_path(instance, filename):
