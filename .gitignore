@@ -1,0 +1,17 @@
+# Python stuff
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+
+# Data
+db.sqlite3
+media/
+static/
+
+# IDEs
+.vscode/
+.idea/
