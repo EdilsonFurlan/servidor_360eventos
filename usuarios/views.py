@@ -104,3 +104,39 @@ def renovar_assinatura(request):
         'message': 'Atualizado',
         'nova_data': user.data_vencimento.strftime("%Y-%m-%d")
     }, status=200)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def user_register(request):
+    nome = request.data.get('nome')
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not nome or not email or not password:
+        return Response({'detail': 'Nome, email e senha são obrigatórios.'}, status=400)
+
+    if Usuario.objects.filter(email=email).exists():
+        return Response({'detail': 'Este email já está cadastrado.'}, status=400)
+
+    try:
+        user = Usuario.objects.create_user(email=email, nome=nome, password=password)
+        
+        # Opcional: Definir data de vencimento inicial (ex: 7 dias grátis)
+        # user.data_vencimento = date.today() + timedelta(days=7)
+        # user.save()
+
+        token, created = Token.objects.get_or_create(user=user)
+        
+        data_vencimento_str = user.data_vencimento.isoformat() if user.data_vencimento else None
+
+        return Response({
+            'message': 'Cadastro realizado com sucesso!',
+            'token': token.key,
+            'user_id': user.id,
+            'user_nome': user.nome,
+            'data_vencimento': data_vencimento_str
+        }, status=201)
+
+    except Exception as e:
+        return Response({'detail': str(e)}, status=500)
