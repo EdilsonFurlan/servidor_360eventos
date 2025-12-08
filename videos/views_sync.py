@@ -18,8 +18,8 @@ def sync_download(request):
     effects = SavedEffect.objects.filter(user=user) | SavedEffect.objects.filter(is_padrao=True)
 
     return Response({
-        'events': EventSerializer(events, many=True).data,
-        'videos': VideoSerializer(videos, many=True).data,
+        'events': EventSerializer(events, many=True, context={'request': request}).data,
+        'videos': VideoSerializer(videos, many=True, context={'request': request}).data,
         'effects': SavedEffectSerializer(effects, many=True).data
     })
 
