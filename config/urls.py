@@ -10,6 +10,7 @@ urlpatterns = [
     path('app/', include('app_management.urls')),
     # Rotas de Autenticação
     path('auth/', include('usuarios.urls')),
+    path('sync/', include('videos.urls_sync')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

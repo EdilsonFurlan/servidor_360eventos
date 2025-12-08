@@ -72,3 +72,21 @@ class Video(models.Model):
 
     def __str__(self):
         return f"Video {self.unique_id} - {self.status}"
+
+class SavedEffect(models.Model):
+    """
+    Espelha a classe EfeitoSalvo.kt do Android.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
+    json_config = models.TextField(verbose_name="JSON de Configuração")
+    is_padrao = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Efeito Salvo"
+        verbose_name_plural = "Efeitos Salvos"
+
+    def __str__(self):
+        return f"{self.nome} (User: {self.user.email})"
