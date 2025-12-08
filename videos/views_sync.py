@@ -60,7 +60,21 @@ def sync_upload(request):
                     if serializer.is_valid():
                         serializer.save(user=user)
             
-            # TODO: Processar outros tipos se necessário (Videos metadata, Effects)
+            # Processar Efeitos
+            effects_data = data.get('effects', [])
+            for effect_json in effects_data:
+                # Efeitos não costumam ter ID do servidor no JSON do app se forem novos
+                # O app pode enviar 'id' (local) ou 'serverId' se tiver
+                # Vamos assumir que o app envia o objeto SavedEffect completo
+                
+                # Para evitar duplicação, podemos checar por nome? Ou ID?
+                # Se o app mandar ID (do banco local), não serve como ID do servidor.
+                # Vamos criar sempre se não tiver um identificador claro de "atualização"
+                
+                # Simplificação: Cria novo sempre. (Melhorar com ID de servidor no futuro)
+                serializer = SavedEffectSerializer(data=effect_json)
+                if serializer.is_valid():
+                    serializer.save(user=user)
             
         return Response({'message': 'Sync upload success'}, status=200)
 

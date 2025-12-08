@@ -19,17 +19,15 @@ class EventViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        # OPCIONAL: Filtrar por usuário se tiver autenticação
-        # if self.request.user.is_authenticated:
-        #     return Event.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            return Event.objects.filter(user=self.request.user)
         return Event.objects.all()
     
     def perform_create(self, serializer):
-        # OPCIONAL: Associar ao usuário logado
-        # if self.request.user.is_authenticated:
-        #     serializer.save(user=self.request.user)
-        # else:
-        serializer.save()
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
 
 
 
