@@ -62,21 +62,38 @@ def sync_upload(request):
             
             # Processar Efeitos
             effects_data = data.get('effects', [])
+            print(f"SyncUpload: Recebido {len(effects_data)} efeitos para processar.")
             for effect_json in effects_data:
                 # Efeitos não costumam ter ID do servidor no JSON do app se forem novos
-                # O app pode enviar 'id' (local) ou 'serverId' se tiver
-                # Vamos assumir que o app envia o objeto SavedEffect completo
+                # Para evitar duplicação, checamos pelo NOME para este usuário
+                nome_efeito = effect_json.get('nome')
                 
-                # Para evitar duplicação, podemos checar por nome? Ou ID?
-                # Se o app mandar ID (do banco local), não serve como ID do servidor.
-                # Vamos criar sempre se não tiver um identificador claro de "atualização"
-                
-                # Simplificação: Cria novo sempre. (Melhorar com ID de servidor no futuro)
-                serializer = SavedEffectSerializer(data=effect_json)
-                if serializer.is_valid():
-                    serializer.save(user=user)
-                else:
-                    print(f"Erro ao salvar efeito: {serializer.errors}")
+                if nome_efeito:
+                    print(f"Verificando existência de efeito: '{nome_efeito}' para user {user.username}")
+                    try:
+                        effect = SavedEffect.objects.get(user=user, nome=nome_efeito)
+                        print(" -> ENCONTRADO! Atualizando...")
+                        # Atualiza existente
+                        serializer = SavedEffectSerializer(effect, data=effect_json, partial=True)
+                        if serializer.is_valid():
+                            serializer.save()
+                        else:
+                            print(f"Erro ao atualizar efeito '{nome_efeito}': {serializer.errors}")
+                    except SavedEffect.DoesNotExist:
+                        print(" -> NAO encontrado. Criando novo...")
+                        # Cria novo
+                        serializer = SavedEffectSerializer(data=effect_json)
+                        if serializer.is_valid():
+                            serializer.save(user=user)
+                        else:
+                            print(f"Erro ao criar efeito '{nome_efeito}': {serializer.errors}")
+                    except SavedEffect.MultipleObjectsReturned:
+                        # Se já houver duplicatas, pega o primeiro e atualiza, ignorando os outros
+                        # (Ideal seria limpar, mas vamos manter simples por enquanto)
+                        effect = SavedEffect.objects.filter(user=user, nome=nome_efeito).first()
+                        serializer = SavedEffectSerializer(effect, data=effect_json, partial=True)
+                        if serializer.is_valid():
+                            serializer.save()
             
         return Response({'message': 'Sync upload success'}, status=200)
 
