@@ -23,11 +23,46 @@ class EventViewSet(viewsets.ModelViewSet):
             return Event.objects.filter(user=self.request.user)
         return Event.objects.all()
     
+    
     def perform_create(self, serializer):
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
         else:
             serializer.save()
+
+    @action(detail=True, methods=['post'], url_path='upload-frame', parser_classes=[parsers.MultiPartParser])
+    def upload_frame(self, request, pk=None):
+        """
+        Upload da imagem de moldura (frame) para o evento.
+        """
+        event = self.get_object()
+        file = request.FILES.get('frame')
+        if not file:
+            return Response({'error': 'Arquivo frame não enviado'}, status=400)
+            
+        event.frame_file = file
+        event.save()
+        
+        # Retorna a URL completa
+        file_url = request.build_absolute_uri(event.frame_file.url)
+        return Response({'message': 'Moldura salva com sucesso', 'url': file_url}, status=200)
+
+    @action(detail=True, methods=['post'], url_path='upload-music', parser_classes=[parsers.MultiPartParser])
+    def upload_music(self, request, pk=None):
+        """
+        Upload de música (mp3) para o evento.
+        """
+        event = self.get_object()
+        file = request.FILES.get('music')
+        if not file:
+            return Response({'error': 'Arquivo music não enviado'}, status=400)
+            
+        event.music_file = file
+        event.save()
+        
+        file_url = request.build_absolute_uri(event.music_file.url)
+        return Response({'message': 'Música salva com sucesso', 'url': file_url}, status=200)
+
 
 
 

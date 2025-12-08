@@ -12,6 +12,28 @@ class EventSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        
+        request = self.context.get('request')
+
+        # Se tiver arquivo real, sobrescreve a URL antiga (que pode ser local path)
+        if instance.frame_file:
+            try:
+                file_url = instance.frame_file.url
+                if request:
+                    file_url = request.build_absolute_uri(file_url)
+                representation['frame_url'] = file_url
+            except Exception:
+                pass
+
+        if instance.music_file:
+            try:
+                file_url = instance.music_file.url
+                if request:
+                    file_url = request.build_absolute_uri(file_url)
+                representation['music_url'] = file_url
+            except Exception:
+                pass
+
         # Garante que event_date nunca seja null para não quebrar o Android
         if not representation.get('event_date'):
             import datetime

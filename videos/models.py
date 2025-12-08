@@ -19,6 +19,10 @@ class Event(models.Model):
     music_end_time_sec = models.IntegerField(default=0, verbose_name="Fim da Música (s)")
     effect_id = models.CharField(max_length=50, verbose_name="ID do Efeito")
     
+    # Arquivos Binários (Novos)
+    frame_file = models.ImageField(upload_to=frame_upload_path, null=True, blank=True, verbose_name="Arquivo da Moldura")
+    music_file = models.FileField(upload_to=music_upload_path, null=True, blank=True, verbose_name="Arquivo da Música")
+    
     # ALTERADO: De DateField para CharField (Android envia como string "dd/MM/yyyy")
     event_date = models.CharField(max_length=20, verbose_name="Data do Evento")
     is_finished = models.BooleanField(default=False, verbose_name="Finalizado")
@@ -31,6 +35,21 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+def frame_upload_path(instance, filename):
+    """
+    Caminho: events/{user_id}/frames/{filename}
+    """
+    user_id = str(instance.user.id) if instance.user else 'default_user'
+    return f'events/{user_id}/frames/{filename}'
+
+def music_upload_path(instance, filename):
+    """
+    Caminho: events/{user_id}/music/{filename}
+    """
+    user_id = str(instance.user.id) if instance.user else 'default_user'
+    return f'events/{user_id}/music/{filename}'
+
 
 def video_upload_path(instance, filename):
     """
