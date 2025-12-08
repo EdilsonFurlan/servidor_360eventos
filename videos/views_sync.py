@@ -75,6 +75,8 @@ def sync_upload(request):
                 serializer = SavedEffectSerializer(data=effect_json)
                 if serializer.is_valid():
                     serializer.save(user=user)
+                else:
+                    print(f"Erro ao salvar efeito: {serializer.errors}")
             
         return Response({'message': 'Sync upload success'}, status=200)
 
