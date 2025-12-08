@@ -69,7 +69,7 @@ def sync_upload(request):
                 nome_efeito = effect_json.get('nome')
                 
                 if nome_efeito:
-                    print(f"Verificando existência de efeito: '{nome_efeito}' para user {user.username}")
+                    print(f"Verificando existência de efeito: '{nome_efeito}' para user {user.email}")
                     try:
                         effect = SavedEffect.objects.get(user=user, nome=nome_efeito)
                         print(" -> ENCONTRADO! Atualizando...")
