@@ -10,6 +10,14 @@ class EventSerializer(serializers.ModelSerializer):
                   'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at', 'user']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Garante que event_date nunca seja null para não quebrar o Android
+        if not representation.get('event_date'):
+            import datetime
+            representation['event_date'] = datetime.datetime.now().strftime("%d/%m/%Y")
+        return representation
+
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
