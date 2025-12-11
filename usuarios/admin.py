@@ -4,7 +4,7 @@ from .models import Usuario
 
 class UsuarioAdmin(UserAdmin):
     # Campos que aparecerão na lista de usuários
-    list_display = ('email', 'nome', 'is_active', 'data_vencimento', 'is_staff')
+    list_display = ('email', 'nome', 'is_active', 'data_vencimento', 'video_resolution', 'is_staff')
 
     # Buscar por email ou nome
     search_fields = ('email', 'nome')
@@ -16,6 +16,7 @@ class UsuarioAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Informações Pessoais', {'fields': ('nome', 'data_vencimento')}),
+        ('Configuração de Vídeo', {'fields': ('video_resolution', 'video_fps', 'video_bitrate')}),
         ('Permissões', {
             'fields': (
                 'is_active',
