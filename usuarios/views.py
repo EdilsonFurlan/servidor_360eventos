@@ -86,7 +86,12 @@ def validate_user(request):
     
     return Response({
         'message': 'Validação realizada',
-        'data_vencimento': data_vencimento_str
+        'data_vencimento': data_vencimento_str,
+        'video_config': {
+            'video_resolution': user.video_resolution,
+            'video_fps': user.video_fps,
+            'video_bitrate': user.video_bitrate
+        }
     }, status=200)
 
     # views.py
