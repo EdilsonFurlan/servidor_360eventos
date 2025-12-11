@@ -31,6 +31,11 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     # Campo opcional que você criou
     data_vencimento = models.DateField(null=True, blank=True)
 
+    # Configurações de Vídeo (Sincronização)
+    video_resolution = models.CharField(max_length=10, default="FHD")
+    video_fps = models.IntegerField(default=30)
+    video_bitrate = models.CharField(max_length=10, default="HIGH")
+
     objects = GerenciadorDeUsuario()
 
     USERNAME_FIELD = 'email'

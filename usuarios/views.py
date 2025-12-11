@@ -45,7 +45,12 @@ def user_login(request):
                 'user_id': user.id,
                 'user_nome': user.nome,
                 'data_vencimento': data_vencimento_str,
-                'warning': 'Seu plano expirou. Entre em contato para renovar.'
+                'warning': 'Seu plano expirou. Entre em contato para renovar.',
+                'video_config': {
+                    'video_resolution': user.video_resolution,
+                    'video_fps': user.video_fps,
+                    'video_bitrate': user.video_bitrate
+                }
             }, status=200)
         
         # --- LOGIN SUCESSO (Plano Ativo) ---
@@ -54,7 +59,12 @@ def user_login(request):
             'token': token.key,
             'user_id': user.id,
             'user_nome': user.nome,
-            'data_vencimento': data_vencimento_str
+            'data_vencimento': data_vencimento_str,
+            'video_config': {
+                'video_resolution': user.video_resolution,
+                'video_fps': user.video_fps,
+                'video_bitrate': user.video_bitrate
+            }
         }, status=200)
 
     return Response({'detail': 'Credenciais inválidas.'}, status=401)
@@ -135,8 +145,29 @@ def user_register(request):
             'token': token.key,
             'user_id': user.id,
             'user_nome': user.nome,
-            'data_vencimento': data_vencimento_str
+            'user_nome': user.nome,
+            'data_vencimento': data_vencimento_str,
+            'video_config': {
+                'video_resolution': user.video_resolution,
+                'video_fps': user.video_fps,
+                'video_bitrate': user.video_bitrate
+            }
         }, status=201)
 
     except Exception as e:
         return Response({'detail': str(e)}, status=500)
+    except Exception as e:
+        return Response({'detail': str(e)}, status=500)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_video_config(request):
+    user = request.user
+    
+    user.video_resolution = request.data.get('video_resolution', user.video_resolution)
+    user.video_fps = request.data.get('video_fps', user.video_fps)
+    user.video_bitrate = request.data.get('video_bitrate', user.video_bitrate)
+    
+    user.save()
+    
+    return Response({'message': 'Configurações atualizadas'}, status=200)
