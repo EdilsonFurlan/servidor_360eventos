@@ -61,6 +61,7 @@ def user_login(request):
             'user_id': user.id,
             'user_nome': user.nome,
             'data_vencimento': data_vencimento_str,
+            'video_config': {
                 'video_resolution': user.video_resolution,
                 'video_fps': user.video_fps,
                 'video_bitrate': user.video_bitrate,
