@@ -35,6 +35,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     video_resolution = models.CharField(max_length=10, default="FHD")
     video_fps = models.IntegerField(default=30)
     video_bitrate = models.CharField(max_length=10, default="HIGH")
+    video_duration = models.IntegerField(default=15)
 
     objects = GerenciadorDeUsuario()
 

@@ -49,7 +49,8 @@ def user_login(request):
                 'video_config': {
                     'video_resolution': user.video_resolution,
                     'video_fps': user.video_fps,
-                    'video_bitrate': user.video_bitrate
+                    'video_bitrate': user.video_bitrate,
+                    'video_duration': user.video_duration
                 }
             }, status=200)
         
@@ -60,10 +61,10 @@ def user_login(request):
             'user_id': user.id,
             'user_nome': user.nome,
             'data_vencimento': data_vencimento_str,
-            'video_config': {
                 'video_resolution': user.video_resolution,
                 'video_fps': user.video_fps,
-                'video_bitrate': user.video_bitrate
+                'video_bitrate': user.video_bitrate,
+                'video_duration': user.video_duration
             }
         }, status=200)
 
@@ -90,7 +91,8 @@ def validate_user(request):
         'video_config': {
             'video_resolution': user.video_resolution,
             'video_fps': user.video_fps,
-            'video_bitrate': user.video_bitrate
+            'video_bitrate': user.video_bitrate,
+            'video_duration': user.video_duration
         }
     }, status=200)
 
@@ -155,7 +157,8 @@ def user_register(request):
             'video_config': {
                 'video_resolution': user.video_resolution,
                 'video_fps': user.video_fps,
-                'video_bitrate': user.video_bitrate
+                'video_bitrate': user.video_bitrate,
+                'video_duration': user.video_duration
             }
         }, status=201)
 
@@ -172,6 +175,7 @@ def update_video_config(request):
     user.video_resolution = request.data.get('video_resolution', user.video_resolution)
     user.video_fps = request.data.get('video_fps', user.video_fps)
     user.video_bitrate = request.data.get('video_bitrate', user.video_bitrate)
+    user.video_duration = request.data.get('video_duration', user.video_duration)
     
     user.save()
     
