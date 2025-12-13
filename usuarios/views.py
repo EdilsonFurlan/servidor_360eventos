@@ -50,7 +50,8 @@ def user_login(request):
                     'video_resolution': user.video_resolution,
                     'video_fps': user.video_fps,
                     'video_bitrate': user.video_bitrate,
-                    'video_duration': user.video_duration
+                    'video_duration': user.video_duration,
+                    'video_camera_lens': user.video_camera_lens
                 }
             }, status=200)
         
@@ -65,7 +66,8 @@ def user_login(request):
                 'video_resolution': user.video_resolution,
                 'video_fps': user.video_fps,
                 'video_bitrate': user.video_bitrate,
-                'video_duration': user.video_duration
+                'video_duration': user.video_duration,
+                'video_camera_lens': user.video_camera_lens
             }
         }, status=200)
 
@@ -93,7 +95,8 @@ def validate_user(request):
             'video_resolution': user.video_resolution,
             'video_fps': user.video_fps,
             'video_bitrate': user.video_bitrate,
-            'video_duration': user.video_duration
+            'video_duration': user.video_duration,
+            'video_camera_lens': user.video_camera_lens
         }
     }, status=200)
 
@@ -159,7 +162,8 @@ def user_register(request):
                 'video_resolution': user.video_resolution,
                 'video_fps': user.video_fps,
                 'video_bitrate': user.video_bitrate,
-                'video_duration': user.video_duration
+                'video_duration': user.video_duration,
+                'video_camera_lens': user.video_camera_lens
             }
         }, status=201)
 
@@ -177,6 +181,7 @@ def update_video_config(request):
     user.video_fps = request.data.get('video_fps', user.video_fps)
     user.video_bitrate = request.data.get('video_bitrate', user.video_bitrate)
     user.video_duration = request.data.get('video_duration', user.video_duration)
+    user.video_camera_lens = request.data.get('video_camera_lens', user.video_camera_lens)
     
     user.save()
     
