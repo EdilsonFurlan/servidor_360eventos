@@ -103,6 +103,7 @@ class SavedEffect(models.Model):
     nome = models.CharField(max_length=100)
     json_config = models.TextField(verbose_name="JSON de Configuração")
     is_padrao = models.BooleanField(default=False)
+    duracao_base = models.IntegerField(default=15, verbose_name="Duração Base (s)")
     
     created_at = models.DateTimeField(auto_now_add=True)
 

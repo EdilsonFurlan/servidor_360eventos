@@ -48,5 +48,5 @@ class VideoSerializer(serializers.ModelSerializer):
 class SavedEffectSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavedEffect
-        fields = ['id', 'user', 'nome', 'json_config', 'is_padrao', 'created_at']
+        fields = ['id', 'user', 'nome', 'json_config', 'is_padrao', 'duracao_base', 'created_at']
         read_only_fields = ['id', 'created_at', 'user']
