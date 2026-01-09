@@ -1,5 +1,9 @@
 from django.db import models
 from django.conf import settings
+import os
+import shutil
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 
 def frame_upload_path(instance, filename):
@@ -115,10 +119,6 @@ class SavedEffect(models.Model):
         return f"{self.nome} (User: {self.user.email})"
 
 # --- SIGNALS PARA LIMPEZA DE ARQUIVOS ---
-import os
-import shutil
-from django.dispatch import receiver
-from django.db.models.signals import post_delete
 
 @receiver(post_delete, sender=Video)
 def auto_delete_video_file_on_delete(sender, instance, **kwargs):
@@ -149,7 +149,8 @@ def auto_delete_event_resources_on_delete(sender, instance, **kwargs):
 
     # 2. Deleta Pasta de Vídeos do Evento (que contem os mp4 processados)
     try:
-        user_id = str(instance.user.id) if instance.user else 'default_user'
+        # Usa user_id diretamente para evitar buscar usuário deletado
+        user_id = str(instance.user_id) if instance.user_id else 'default_user'
         event_id = str(instance.id)
         
         # Caminho: media/videos/{userId}/{eventId}
