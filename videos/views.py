@@ -3,8 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # OPCIONAL
 from django.core.files.storage import default_storage
-from .models import Event, Video
-from .serializers import EventSerializer, VideoSerializer
+from .models import Event, Video, SavedEffect
+from .serializers import EventSerializer, VideoSerializer, SavedEffectSerializer
 import uuid
 from rest_framework import status
 from django.contrib.auth import get_user_model
@@ -127,3 +127,19 @@ class VideoViewSet(viewsets.ModelViewSet):
             import traceback
             traceback.print_exc()  # Log completo no console
             return Response({'error': str(e)}, status=500)
+
+class SavedEffectViewSet(viewsets.ModelViewSet):
+    serializer_class = SavedEffectSerializer
+    queryset = SavedEffect.objects.all()
+    # permission_classes = [IsAuthenticated] # Opcional: descomentar
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return SavedEffect.objects.filter(user=self.request.user)
+        return SavedEffect.objects.all()
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()

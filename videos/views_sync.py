@@ -61,39 +61,49 @@ def sync_upload(request):
                         serializer.save(user=user)
             
             # Processar Efeitos
-            effects_data = data.get('effects', [])
-            print(f"SyncUpload: Recebido {len(effects_data)} efeitos para processar.")
-            for effect_json in effects_data:
-                # Efeitos não costumam ter ID do servidor no JSON do app se forem novos
-                # Para evitar duplicação, checamos pelo NOME para este usuário
-                nome_efeito = effect_json.get('nome')
+            if 'effects' in data:
+                effects_data = data.get('effects', [])
+                print(f"SyncUpload: Recebido {len(effects_data)} efeitos.")
                 
-                if nome_efeito:
-                    print(f"Verificando existência de efeito: '{nome_efeito}' para user {user.email}")
-                    try:
-                        effect = SavedEffect.objects.get(user=user, nome=nome_efeito)
-                        print(" -> ENCONTRADO! Atualizando...")
-                        # Atualiza existente
-                        serializer = SavedEffectSerializer(effect, data=effect_json, partial=True)
-                        if serializer.is_valid():
-                            serializer.save()
-                        else:
-                            print(f"Erro ao atualizar efeito '{nome_efeito}': {serializer.errors}")
-                    except SavedEffect.DoesNotExist:
-                        print(" -> NAO encontrado. Criando novo...")
-                        # Cria novo
-                        serializer = SavedEffectSerializer(data=effect_json)
-                        if serializer.is_valid():
-                            serializer.save(user=user)
-                        else:
-                            print(f"Erro ao criar efeito '{nome_efeito}': {serializer.errors}")
-                    except SavedEffect.MultipleObjectsReturned:
-                        # Se já houver duplicatas, pega o primeiro e atualiza, ignorando os outros
-                        # (Ideal seria limpar, mas vamos manter simples por enquanto)
-                        effect = SavedEffect.objects.filter(user=user, nome=nome_efeito).first()
-                        serializer = SavedEffectSerializer(effect, data=effect_json, partial=True)
-                        if serializer.is_valid():
-                            serializer.save()
+                received_names = []
+
+                for effect_json in effects_data:
+                    nome_efeito = effect_json.get('nome')
+                    if nome_efeito:
+                        received_names.append(nome_efeito)
+                        try:
+                            # Tenta buscar efeito existente pelo nome para atualizar
+                            effect = SavedEffect.objects.get(user=user, nome=nome_efeito)
+                            serializer = SavedEffectSerializer(effect, data=effect_json, partial=True)
+                            if serializer.is_valid():
+                                serializer.save()
+                            else:
+                                print(f"Erro update '{nome_efeito}': {serializer.errors}")
+                        except SavedEffect.DoesNotExist:
+                            # Cria novo
+                            serializer = SavedEffectSerializer(data=effect_json)
+                            if serializer.is_valid():
+                                serializer.save(user=user)
+                            else:
+                                print(f"Erro create '{nome_efeito}': {serializer.errors}")
+                        except SavedEffect.MultipleObjectsReturned:
+                             # Caso raro de duplicidade: atualiza o primeiro
+                            effect = SavedEffect.objects.filter(user=user, nome=nome_efeito).first()
+                            serializer = SavedEffectSerializer(effect, data=effect_json, partial=True)
+                            if serializer.is_valid():
+                                serializer.save()
+
+                # --- DELETE LOGIC (Diferencial) ---
+                # Remove apenas os que não vieram na lista (ou seja, foram deletados no app)
+                # Se a lista recebida for vazia (ex: deletou o ultimo), received_names é vazio
+                # exclude(nome__in=[]) não exclui nada do queryset, ou seja, seleciona TODOS para deletar.
+                # Isso está correto: se o app diz "não tenho efeitos", o server deleta os dele.
+                to_delete = SavedEffect.objects.filter(user=user).exclude(nome__in=received_names)
+                deleted_count, _ = to_delete.delete()
+                if deleted_count > 0:
+                    print(f"SyncUpload: Deletados {deleted_count} efeitos ausentes na lista de envio.")
+            else:
+                print("SyncUpload: Sem chave 'effects'.")
             
         return Response({'message': 'Sync upload success'}, status=200)
 
