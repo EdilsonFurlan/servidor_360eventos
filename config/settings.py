@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-96i%(((v66!u=$f$o!s7ng49s1ycna9z))%b=+v6kn9_=4gtr_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['plataforma.360eventos.com.br', '137.131.146.149','www.plataforma.360eventos.com.br']
+ALLOWED_HOSTS = ['plataforma.360eventos.com.br', '137.131.146.149','www.plataforma.360eventos.com.br', 'plataforma.edilsonfurlan.com.br']
 
 
 # Application definition

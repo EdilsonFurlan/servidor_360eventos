@@ -113,3 +113,51 @@ class SavedEffect(models.Model):
 
     def __str__(self):
         return f"{self.nome} (User: {self.user.email})"
+
+# --- SIGNALS PARA LIMPEZA DE ARQUIVOS ---
+import os
+import shutil
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
+
+@receiver(post_delete, sender=Video)
+def auto_delete_video_file_on_delete(sender, instance, **kwargs):
+    """
+    Deleta o arquivo físico de vídeo quando o registro é deletado.
+    """
+    if instance.video_file:
+        try:
+            if os.path.isfile(instance.video_file.path):
+                os.remove(instance.video_file.path)
+        except Exception as e:
+            print(f"Erro ao deletar arquivo de vídeo {instance.id}: {e}")
+
+@receiver(post_delete, sender=Event)
+def auto_delete_event_resources_on_delete(sender, instance, **kwargs):
+    """
+    1. Deleta arquivos de frame e música associados.
+    2. Deleta a pasta inteira de vídeos deste evento (media/videos/userId/eventId).
+    """
+    # 1. Deleta Frame e Música
+    for file_field in [instance.frame_file, instance.music_file]:
+        if file_field:
+            try:
+                if os.path.isfile(file_field.path):
+                    os.remove(file_field.path)
+            except Exception as e:
+                print(f"Erro ao deletar recurso do evento {instance.id}: {e}")
+
+    # 2. Deleta Pasta de Vídeos do Evento (que contem os mp4 processados)
+    try:
+        user_id = str(instance.user.id) if instance.user else 'default_user'
+        event_id = str(instance.id)
+        
+        # Caminho: media/videos/{userId}/{eventId}
+        event_video_dir = os.path.join(settings.MEDIA_ROOT, 'videos', user_id, event_id)
+        
+        if os.path.exists(event_video_dir):
+            shutil.rmtree(event_video_dir)
+            print(f"Diretório de vídeos do evento {event_id} removido: {event_video_dir}")
+            
+    except Exception as e:
+        print(f"Erro ao limpar diretório do evento {instance.id}: {e}")
